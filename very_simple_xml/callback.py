@@ -12,6 +12,13 @@ class ParseCallback:
         def __str__(self):
             return self.__bytes__().decode('utf-8')
 
+        def __repr__(self):
+            b = b'%s(%s)' % (
+                bytes(self.__class__.__name__, 'utf-8'),
+                bytes.__repr__(self).encode('utf-8'),
+            )
+            return b.decode('utf-8')
+
     class Element(
             namedtuple('element', ['name', 'attributes', 'children']),
             Decoder,
