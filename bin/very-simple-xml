@@ -1,0 +1,18 @@
+#!/usr/bin env python3.6
+# -*- mode: python -*-
+
+import asyncio 
+
+from very_simple_xml import parse_files, ParseCallback
+from argparse import ArgumentParser
+
+parser = ArgumentParser('Parse multiple XML')
+parser.add_argument('xml', nargs='+', help='XML files to parse')
+
+args = parser.parse_args()
+
+loop = asyncio.get_event_loop()
+callbacks = [ParseCallback(f, True) for f in args.xml]
+loop.run_until_complete(parse_files(callbacks))
+for c in callbacks:
+    print(c.xml_file(), str(c))

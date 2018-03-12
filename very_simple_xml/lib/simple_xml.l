@@ -6,6 +6,9 @@
 #include "pool.h"
 #include "simple_xml.tab.h"
 
+#define YY_DECL  int yylex \
+    (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner, pool p)
+
 #define YY_USER_ACTION                          \
     yylval->str = alloc_str(yytext, p);         \
     yylloc->first_line = yylloc->last_line;     \

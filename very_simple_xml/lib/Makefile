@@ -2,6 +2,7 @@ CC := gcc
 YACC := yacc
 LEX := lex
 SOURCES := $(wildcard ./*.c)
+SOURCES := $(filter-out ./bindings.c, $(SOURCES))
 YACC_SOURCES := $(wildcard ./*.y)
 LEX_SOURCES := $(wildcard ./*.l)
 OBJECTS := $(SOURCES:.c=.o)
