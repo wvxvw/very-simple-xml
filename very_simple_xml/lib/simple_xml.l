@@ -7,10 +7,10 @@
 #include "simple_xml.tab.h"
 
 #define YY_DECL  int yylex \
-    (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner, pool p)
+    (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner)
 
 #define YY_USER_ACTION                          \
-    yylval->str = alloc_str(yytext, p);         \
+    yylval->str = alloc_str(yytext, yyextra);   \
     yylloc->first_line = yylloc->last_line;     \
     yylloc->first_column = yylloc->last_column; \
     for (int i = 0; yytext[i] != '\0'; i++) {   \
@@ -28,6 +28,9 @@
 %option bison-bridge
 %option bison-locations
 %option reentrant
+%option extra-type="pool"
+%option noinput
+%option nounput
 
 %%
 
@@ -38,9 +41,9 @@
 [A-Za-z][[:alnum:]:.-]*/[ \n\t\r]*=     { return ATT_NAME; }
 [A-Za-z][[:alnum:]:.-]*/[ \n\t\r]*[>]   { return NODE_NAME; }
 =                                       { return EQUALS; }
-[<]!--.*/--[>]                          { return COMMENT_START; }
+[<][!]--.*/--[>]                        { return COMMENT_START; }
 --[>]                                   { return COMMENT_END; }
-[<]!\[CDATA\[.*/\]\][>]                 { return CDATA_START; }
+[<][!]\[CDATA\[.*/\]\][>]               { return CDATA_START; }
 \]\][>]                                 { return CDATA_END; }
 \"(\\.|[^"\\])*\"                       { return QUOTED; }
 '(\\.|[^'\\])*'                         { return APOSED; }

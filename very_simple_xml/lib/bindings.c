@@ -5,32 +5,7 @@
 #include "simple_xml.lex.h"
 #include "bindings.h"
 
-pool make_pool(
-    size_t mem,
-    py_node_callback node,
-    py_attribute_callback attribute,
-    py_pop_callback pop,
-    void* pyobject) {
-    pool memory = malloc(sizeof(_pool));
-    memory->mem = malloc(sizeof(char) * mem);
-    memory->occupied = 0;
-    memory->node = node;
-    memory->attribute = attribute;
-    memory->pop = pop;
-    memory->pyobject = pyobject;
-    return memory;
-}
-
-void free_pool(pool p) {
-    free(p->mem);
-    free(p);
-}
-
-char* pool_mem(pool p) {
-    return p->mem;
-}
-
-parser init_parser(const char* xml_file, int debug, pool memory) {
+parser make_parser(const char* xml_file, int debug, pool memory) {
     FILE* h = NULL;
     YYLTYPE* location = NULL;
     YYSTYPE* value = NULL;
@@ -42,7 +17,7 @@ parser init_parser(const char* xml_file, int debug, pool memory) {
         goto cleanup;
     }
 
-    int res = yylex_init(&yyscanner);
+    int res = yylex_init_extra(memory, &yyscanner);
     if (res != 0) {
         fprintf(stderr, "Couldn't initialize scanner, errno: %d\n", res);
         goto cleanup;
@@ -111,12 +86,13 @@ void free_parser(parser p) {
     fclose(p->h);
 }
 
-void parse_chunk(parser p) {
+int parse_chunk(parser p) {
     p->status = yypush_parse(
         p->ps,
-        yylex(p->value, p->location, p->yyscanner, p->pool),
+        yylex(p->value, p->location, p->yyscanner),
         p->value,
         p->location,
         p->yyscanner,
         p->pool);
+    return p->status;
 }

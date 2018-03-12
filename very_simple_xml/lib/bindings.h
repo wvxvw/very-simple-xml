@@ -22,6 +22,6 @@ parser make_parser(const char*, int, pool);
 
 void free_parser(parser);
 
-void parse_chunk(parser);
+int parse_chunk(parser);
 
 #endif // BINDINGS_H_

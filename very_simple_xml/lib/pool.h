@@ -26,13 +26,15 @@ void reset_pool(pool);
 
 void extend_pool(pool, size_t);
 
-char* alloc_str(const char*, pool);
+size_t alloc_str(const char*, pool);
 
 pool make_pool(size_t, py_node_callback, py_attribute_callback, py_pop_callback, void*);
 
 void free_pool(pool);
 
 char* pool_mem(pool);
+
+char* get_str(pool, size_t);
 
 
 #endif // POOL_H_

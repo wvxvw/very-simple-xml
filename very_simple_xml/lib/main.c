@@ -27,8 +27,14 @@ int main(int argc, char** argv) {
     int res;
     if (argc == 2) {
         yyscan_t yyscanner;
-
-        res = yylex_init(&yyscanner);
+        _pool memory;
+        memory.mem = malloc(sizeof(char) * 500);
+        memory.occupied = 0;
+        memory.node = &node_callback;
+        memory.attribute = &attribute_callback;
+        memory.pop = &pop_callback;
+        /* res = yylex_init(&yyscanner); */
+        res = yylex_init_extra(&memory, &yyscanner);
         if (res != 0) {
             fprintf(stderr, "Couldn't initialize scanner\n");
             return res;
@@ -46,12 +52,7 @@ int main(int argc, char** argv) {
         location.first_column = 0;
         location.last_column = 0;
         YYSTYPE value;
-        _pool memory;
-        memory.mem = malloc(sizeof(char) * 500);
-        memory.occupied = 0;
-        memory.node = &node_callback;
-        memory.attribute = &attribute_callback;
-        memory.pop = &pop_callback;
+        
         yyset_in(h, yyscanner);
         fprintf(stderr, "Scanner set\n");
         /* res = yyparse(yyscanner, &memory); */
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
         do {
             status = yypush_parse(
                 ps,
-                yylex(&value, &location, yyscanner, &memory),
+                yylex(&value, &location, yyscanner),
                 &value,
                 &location,
                 yyscanner,

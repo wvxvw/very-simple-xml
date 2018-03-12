@@ -4,7 +4,6 @@
 %locations
 %lex-param {void* scanner}
 %parse-param {void* scanner}
-%lex-param {pool p}
 %parse-param {pool p}
 
 %{
@@ -22,7 +21,7 @@ void yyerror(YYLTYPE *locp, void* scanner, pool p, char const *msg) {
 %}
 
 %union {
-    char* str;
+    size_t str;
     void* arr;
 }
 %start s;
@@ -51,7 +50,7 @@ void yyerror(YYLTYPE *locp, void* scanner, pool p, char const *msg) {
 %%
 
 head    : NODE_START {
-    if (p->node("element", @1.first_line, @1.first_column, $1 + 1, p->pyobject)) {
+    if (p->node("element", @1.first_line, @1.first_column, get_str(p, $1 + 1), p->pyobject)) {
         YYABORT;
     }
     reset_pool(p);
@@ -70,31 +69,28 @@ element :       node NODE_END { p->pop(p->pyobject); reset_pool(p); }
  };
 
 text    : TEXT {
-    if (p->node("text", @1.first_line, @1.first_column, $1, p->pyobject)) {
+    if (p->node("text", @1.first_line, @1.first_column, get_str(p, $1), p->pyobject)) {
         YYABORT;
     }
-    p->pop(p->pyobject);
     reset_pool(p);
  };
 
 comment : COMMENT_START COMMENT_END {
-    if (p->node("cdata", @1.first_line, @1.first_column, $1 + 4, p->pyobject)) {
+    if (p->node("comment", @1.first_line, @1.first_column, get_str(p, $1 + 4), p->pyobject)) {
         YYABORT;
     }
-    p->pop(p->pyobject);
     reset_pool(p);
  };
 
 cdata   : CDATA_START CDATA_END {
-    if (p->node("cdata", @1.first_line, @1.first_column, $1 + 9, p->pyobject)) {
+    if (p->node("cdata", @1.first_line, @1.first_column, get_str(p, $1 + 9), p->pyobject)) {
         YYABORT;
     }
-    p->pop(p->pyobject);
     reset_pool(p);
  };
 
 attr    : ATT_NAME EQUALS value {
-    if (p->attribute(@1.first_line, @1.first_column, $1, $3, p->pyobject)) {
+    if (p->attribute(@1.first_line, @1.first_column, get_str(p, $1), get_str(p, $3), p->pyobject)) {
         YYABORT;
     }
     reset_pool(p);
@@ -111,10 +107,13 @@ any     : elt | text ;
 anys    : any anys | any ;
 
 prolog  : PROLOG {
-    if (p->node("pi", @1.first_line, @1.first_column, $1, p->pyobject)) {
+    char* pi = get_str(p, $1 + 2);
+    size_t len = strlen(pi);
+    pi[len - 2] = '\0';
+    if (p->node("pi", @1.first_line, @1.first_column, pi, p->pyobject)) {
+        printf("Reject from python\n");
         YYABORT;
     }
-    p->pop(p->pyobject);
     reset_pool(p);
 };
 

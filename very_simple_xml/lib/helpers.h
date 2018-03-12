@@ -5,8 +5,8 @@
 #include "simple_xml.tab.h"
 
 #define YY_DECL  int yylex \
-    (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner, pool p)
+    (YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner)
 
-extern int yylex(YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner, pool p);
+extern int yylex(YYSTYPE* yylval_param, YYLTYPE* yylloc_param, void* yyscanner);
 
 #endif // HELPERS_H_
